@@ -2,40 +2,36 @@
 
 const express = require("express");
 const cors = require("cors");
-const OpenAI = require("openai");
+
+const productRoutes = require("./src/routes/productRoutes");
+const recommendationRoutes = require("./src/routes/recommendationRoutes");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 app.get("/", (req, res) => {
-  res.json({ message: "SalesFinder AI Backend is running!" });
+  res.json({
+    message: "SalesFinder AI Backend is running!"
+  });
 });
 
-app.post("/api/chat", async (req, res) => {
-  try {
-    const { message } = req.body;
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    status: "OK"
+  });
+});
 
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message is required." });
-    }
+app.use("/api/products", productRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
-    const response = await openai.responses.create({
-      model: "gpt-5-mini",
-      instructions: "You are SalesFinder AI, a friendly beauty shopping assistant. Help users discover cosmetics, skincare and perfumes. Ask about their preferences and budget. Do not invent product prices or availability.",
-      input: message,
-    });
-
-    res.json({ reply: response.output_text });
-  } catch (error) {
-    console.error("OpenAI error:", error.message);
-    res.status(500).json({ error: "Unable to process your request." });
-  }
+app.post("/api/chat", (req, res) => {
+  res.status(503).json({
+    success: false,
+    message: "AI assistant is not configured yet. Ollama integration is pending."
+  });
 });
 
 const PORT = process.env.PORT || 3000;
