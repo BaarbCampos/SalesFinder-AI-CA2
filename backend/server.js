@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const productRoutes = require("./src/routes/productRoutes");
 const recommendationRoutes = require("./src/routes/recommendationRoutes");
+const { generateBeautyResponse } = require("./src/services/geminiService");
 
 const app = express();
 
@@ -27,11 +28,32 @@ app.get("/api/health", (req, res) => {
 app.use("/api/products", productRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 
-app.post("/api/chat", (req, res) => {
-  res.status(503).json({
-    success: false,
-    message: "AI assistant is not configured yet. Ollama integration is pending."
-  });
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: "Message is required."
+      });
+    }
+
+    const reply = await generateBeautyResponse(message.trim());
+
+    res.json({
+      success: true,
+      reply
+    });
+
+  } catch (error) {
+    console.error("Gemini error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      error: "Unable to generate a response. Please try again."
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3000;

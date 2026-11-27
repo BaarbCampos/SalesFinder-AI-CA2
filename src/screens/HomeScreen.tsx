@@ -10,7 +10,11 @@ import {
 import { products } from "../data/products";
 import { ProductCategory } from "../types/Product";
 
-export default function HomeScreen() {
+interface HomeScreenProps {
+  onOpenAssistant: () => void;
+}
+
+export default function HomeScreen({ onOpenAssistant }: HomeScreenProps) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<ProductCategory | "All">("All");
 
@@ -57,7 +61,7 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.aiCard}>
+      <TouchableOpacity style={styles.aiCard} onPress={onOpenAssistant}>
         <Text style={styles.aiTitle}>Meet your AI Beauty Assistant ✨</Text>
         <Text style={styles.description}>Get personalised beauty recommendations.</Text>
         <Text style={styles.aiLink}>Discover more →</Text>
